@@ -1,4 +1,4 @@
-require "bootstrap-slider-rails/version"
+require 'bootstrap-slider-rails/version'
 
 module BootstrapSlider
   module Rails
