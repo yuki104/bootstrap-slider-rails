@@ -207,8 +207,25 @@
 			linear: {
 				toValue: function(percentage) {
 					var rawValue = percentage/100 * (this.options.max - this.options.min);
-					var value = this.options.min + Math.round(rawValue / this.options.step) * this.options.step;
+					if (this.options.ticks_positions.length > 0) {
+						var minv, maxv, minp, maxp = 0;
+						for (var i = 0; i < this.options.ticks_positions.length; i++) {
+							if (percentage <= this.options.ticks_positions[i]) {
+								minv = (i > 0) ? this.options.ticks[i-1] : 0;
+								minp = (i > 0) ? this.options.ticks_positions[i-1] : 0;
+								maxv = this.options.ticks[i];
+								maxp = this.options.ticks_positions[i];
 
+								break;
+							}
+						}
+						if (i > 0) {
+							var partialPercentage = (percentage - minp) / (maxp - minp);
+							rawValue = minv + partialPercentage * (maxv - minv);
+						}
+					}
+
+					var value = this.options.min + Math.round(rawValue / this.options.step) * this.options.step;
 					if (value < this.options.min) {
 						return this.options.min;
 					} else if (value > this.options.max) {
@@ -220,9 +237,27 @@
 				toPercentage: function(value) {
 					if (this.options.max === this.options.min) {
 						return 0;
-					} else {
-						return 100 * (value - this.options.min) / (this.options.max - this.options.min);
 					}
+
+					if (this.options.ticks_positions.length > 0) {
+						var minv, maxv, minp, maxp = 0;
+						for (var i = 0; i < this.options.ticks.length; i++) {
+							if (value  <= this.options.ticks[i]) {
+								minv = (i > 0) ? this.options.ticks[i-1] : 0;
+								minp = (i > 0) ? this.options.ticks_positions[i-1] : 0;
+								maxv = this.options.ticks[i];
+								maxp = this.options.ticks_positions[i];
+
+								break;
+							}
+						}
+						if (i > 0) {
+							var partialPercentage = (value - minv) / (maxv - minv);
+							return minp + partialPercentage * (maxp - minp);
+						}
+					}
+
+					return 100 * (value - this.options.min) / (this.options.max - this.options.min);
 				}
 			},
 
@@ -231,7 +266,17 @@
 				toValue: function(percentage) {
 					var min = (this.options.min === 0) ? 0 : Math.log(this.options.min);
 					var max = Math.log(this.options.max);
-					return Math.exp(min + (max - min) * percentage / 100);
+					var value = Math.exp(min + (max - min) * percentage / 100);
+					value = this.options.min + Math.round((value - this.options.min) / this.options.step) * this.options.step;
+					/* Rounding to the nearest step could exceed the min or
+					 * max, so clip to those values. */
+					if (value < this.options.min) {
+						return this.options.min;
+					} else if (value > this.options.max) {
+						return this.options.max;
+					} else {
+						return value;
+					}
 				},
 				toPercentage: function(value) {
 					if (this.options.max === this.options.min) {
@@ -523,7 +568,6 @@
 					this.options.min = Math.min.apply(Math, this.options.ticks);
 			}
 
-
 			if (Array.isArray(this.options.value)) {
 				this.options.range = true;
 			} else if (this.options.range) {
@@ -658,6 +702,7 @@
 				},
 				natural_arrow_keys: false,
 				ticks: [],
+				ticks_positions: [],
 				ticks_labels: [],
 				ticks_snap_bounds: 0,
 				scale: 'linear',
@@ -894,26 +939,49 @@
 					var labelSize = this.size / (this.options.ticks.length - 1);
 
 					if (this.tickLabelContainer) {
-						this.tickLabelContainer.style[styleMargin] = -labelSize/2 + 'px';
+						var extraMargin = 0;
+						if (this.options.ticks_positions.length === 0) {
+							this.tickLabelContainer.style[styleMargin] = -labelSize/2 + 'px';
+							extraMargin = this.tickLabelContainer.offsetHeight;
+						} else {
+							/* Chidren are position absolute, calculate height by finding the max offsetHeight of a child */
+							for (i = 0 ; i < this.tickLabelContainer.childNodes.length; i++) {
+								if (this.tickLabelContainer.childNodes[i].offsetHeight > extraMargin) {
+									extraMargin = this.tickLabelContainer.childNodes[i].offsetHeight;
+								}
+							}
+						}
 						if (this.options.orientation === 'horizontal') {
-							var extraHeight = this.tickLabelContainer.offsetHeight - this.sliderElem.offsetHeight;
-							this.sliderElem.style.marginBottom = extraHeight + 'px';
+							this.sliderElem.style.marginBottom = extraMargin + 'px';
 						}
 					}
 					for (var i = 0; i < this.options.ticks.length; i++) {
-						var percentage = 100 * (this.options.ticks[i] - minTickValue) / (maxTickValue - minTickValue);
+
+						var percentage = this.options.ticks_positions[i] ||
+							100 * (this.options.ticks[i] - minTickValue) / (maxTickValue - minTickValue);
+
 						this.ticks[i].style[this.stylePos] = percentage + '%';
 
 						/* Set class labels to denote whether ticks are in the selection */
 						this._removeClass(this.ticks[i], 'in-selection');
-						if (percentage <= positionPercentages[0] && !this.options.range) {
-							this._addClass(this.ticks[i], 'in-selection');
+						if (!this.options.range) {
+							if (this.options.selection === 'after' && percentage >= positionPercentages[0]){
+								this._addClass(this.ticks[i], 'in-selection');
+							} else if (this.options.selection === 'before' && percentage <= positionPercentages[0]) {
+								this._addClass(this.ticks[i], 'in-selection');
+							}
 						} else if (percentage >= positionPercentages[0] && percentage <= positionPercentages[1]) {
 							this._addClass(this.ticks[i], 'in-selection');
 						}
 
 						if (this.tickLabels[i]) {
 							this.tickLabels[i].style[styleSize] = labelSize + 'px';
+
+							if (this.options.ticks_positions[i] !== undefined) {
+								this.tickLabels[i].style.position = 'absolute';
+								this.tickLabels[i].style[this.stylePos] = this.options.ticks_positions[i] + '%';
+								this.tickLabels[i].style[styleMargin] = -labelSize/2 + 'px';
+							}
 						}
 					}
 				}
@@ -949,9 +1017,9 @@
 			            this._addClass(this.tooltip_max, 'top');
 			            this.tooltip_max.style.top = this.tooltip_min.style.top;
 			        }
-	 			}
+				}
 
-	 			var formattedTooltipVal;
+				var formattedTooltipVal;
 
 				if (this.options.range) {
 					formattedTooltipVal = this.options.formatter(this.options.value);
@@ -1340,23 +1408,25 @@
 
 				element.className = newClasses.trim();
 			},
+			_offsetLeft: function(obj){
+				var offsetLeft = obj.offsetLeft;
+				while((obj = obj.offsetParent) && !isNaN(obj.offsetLeft)){
+					offsetLeft += obj.offsetLeft;
+				}
+				return offsetLeft;
+			},
+			_offsetTop: function(obj){
+				var offsetTop = obj.offsetTop;
+				while((obj = obj.offsetParent) && !isNaN(obj.offsetTop)){
+					offsetTop += obj.offsetTop;
+				}
+				return offsetTop;
+			},
 		    _offset: function (obj) {
-				// TODO: Need to find a better solution to fix vertical sliders
-				if(this.options.orientation === "vertical") {
-					return {
-                        left: obj.offsetLeft,
-                        top: obj.offsetTop
-                    };
-				}
-				else {
-					var rect = obj.getBoundingClientRect(),
-					ol = rect.left,
-					ot = rect.top;
-					return {
-						left: ol,
-						top: ot
-					};
-				}
+				return {
+					left: this._offsetLeft(obj),
+					top: this._offsetTop(obj)
+				};
 		    },
 			_css: function(elementRef, styleName, value) {
                 if ($) {
