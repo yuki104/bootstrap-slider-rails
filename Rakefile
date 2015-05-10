@@ -14,6 +14,6 @@ task :update_slider do
 
   FileUtils.mkdir_p('vendor/assets/javascripts')
   FileUtils.mkdir_p('vendor/assets/stylesheets')
-  download_slider(BootstrapSlider::Rails::BOOTSTRAP_SLIDER_VERSION)
+  download_slider(BootstrapSlider::Rails::VERSION)
   puts "\e[32mDone!\e[0m"
 end
