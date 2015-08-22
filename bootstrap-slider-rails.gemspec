@@ -8,14 +8,14 @@ Gem::Specification.new do |spec|
   spec.version       = BootstrapSlider::Rails::VERSION
   spec.authors       = ['Pedr Browne']
   spec.email         = ['pedr.browne@gmail.com']
-  spec.description   = %q{Make Bootstrap Slider available to Rails}
-  spec.summary       = %q{This Gem integrates Seiyara's fork of Bootstrap Slider
-                          with Rails, exposing its JavaScript and CSS assets via
-                          a Rails Engine.}
+  spec.description   = 'Make Bootstrap Slider available to Rails'
+  spec.summary       = "This Gem integrates Seiyara's fork of Bootstrap " \
+                       'Slider with Rails, exposing its JavaScript and CSS ' \
+                       'assets via a Rails Engine.'
   spec.homepage      = 'http://github.com/stationkeeping/bootstrap-slider-rails'
   spec.license       = 'MIT'
 
-  spec.files         = `git ls-files`.split($/)
+  spec.files         = `git ls-files`.split($RS)
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
