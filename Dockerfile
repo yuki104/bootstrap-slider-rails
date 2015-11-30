@@ -5,7 +5,7 @@
 
 # ~~~~ Image base ~~~~
 # Base image with the latest Ruby only
-FROM litaio/ruby:2.2.2
+FROM ruby:2.2.3
 MAINTAINER Guillaume Hain zedtux@zedroot.org
 
 
