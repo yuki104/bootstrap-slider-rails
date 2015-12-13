@@ -19,7 +19,7 @@ if [[ -z "$LIBRARY_UPDATED" ]]; then
   exit 1
 fi
 
-echo "Commiting new version ..."
+echo "Committing new version ..."
 git commit -m "Import version $LIBRARY_NEW_VERSION"
 
 echo "Releasing gem ..."
