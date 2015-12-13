@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.summary       = "This Gem integrates Seiyara's fork of Bootstrap " \
                        'Slider with Rails, exposing its JavaScript and CSS ' \
                        'assets via a Rails Engine.'
-  spec.homepage      = 'http://github.com/stationkeeping/bootstrap-slider-rails'
+  spec.homepage      = 'https://github.com/YourCursus/bootstrap-slider-rails'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files`.split($RS)
