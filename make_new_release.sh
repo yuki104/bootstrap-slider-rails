@@ -20,7 +20,7 @@ if [[ -z "$LIBRARY_UPDATED" ]]; then
 fi
 
 echo "Committing new version ..."
-git commit -m "Import version $LIBRARY_NEW_VERSION"
+git commit -am "Import version $LIBRARY_NEW_VERSION"
 
 echo "Releasing gem ..."
 docker run --rm -v ~/.gitconfig:/root/.gitconfig \
