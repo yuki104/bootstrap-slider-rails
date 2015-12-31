@@ -3,7 +3,8 @@
 DOCKER_IMAGE_NAME="$USER/bootstrap-slider-rails"
 LIBRARY_NEW_VERSION=`cat lib/**/*.rb | grep VERSION | awk '{ print $3 }' | tr -d "'"`
 
-LIBRARY_UPDATED=`git status --porcelain`
+LIBRARY_UPDATED=`git status --porcelain | grep -v "lib/bootstrap-slider-rails/version.rb"`
+echo "LIBRARY_UPDATED: $LIBRARY_UPDATED"
 if [[ -n "$LIBRARY_UPDATED" ]]; then
   echo "Your repository is not clean !"
   exit 1
