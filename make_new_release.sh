@@ -3,7 +3,7 @@
 DOCKER_IMAGE_NAME="$USER/bootstrap-slider-rails"
 LIBRARY_NEW_VERSION=`cat lib/**/*.rb | grep VERSION | awk '{ print $3 }' | tr -d "'"`
 
-LIBRARY_UPDATED=`git status --porcelain | grep -v "lib/bootstrap-slider-rails/version.rb"`
+LIBRARY_UPDATED=`git status --porcelain | grep -v "lib/bootstrap-slider-rails/version.rb" | grep -v make_new_release.sh`
 if [[ -n "$LIBRARY_UPDATED" ]]; then
   echo "Your repository is not clean !"
   exit 1
@@ -20,6 +20,7 @@ echo "Updating library code to version $LIBRARY_NEW_VERSION ..."
 docker run --rm -v `pwd`:/gem/ "$DOCKER_IMAGE_NAME" rake update
 
 LIBRARY_UPDATED=`git status --porcelain`
+echo "LIBRARY_UPDATED: $LIBRARY_UPDATED"
 if [[ -z "$LIBRARY_UPDATED" ]]; then
   echo "No update found, stopping release creation."
   exit 1
