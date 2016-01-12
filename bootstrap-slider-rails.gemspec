@@ -6,13 +6,13 @@ require 'bootstrap-slider-rails/version'
 Gem::Specification.new do |spec|
   spec.name          = 'bootstrap-slider-rails'
   spec.version       = BootstrapSlider::Rails::VERSION
-  spec.authors       = ['Pedr Browne']
-  spec.email         = ['pedr.browne@gmail.com']
+  spec.authors       = ['yuki104']
+  spec.email         = ['nt2929831@gmail.com']
   spec.description   = 'Make Bootstrap Slider available to Rails'
   spec.summary       = "This Gem integrates Seiyara's fork of Bootstrap " \
                        'Slider with Rails, exposing its JavaScript and CSS ' \
                        'assets via a Rails Engine.'
-  spec.homepage      = 'https://github.com/YourCursus/bootstrap-slider-rails'
+  spec.homepage      = 'https://github.com/yuki104/bootstrap-slider-rails'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files`.split($RS)
